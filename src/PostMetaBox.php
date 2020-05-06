@@ -5,6 +5,7 @@ namespace SergeLiatko\WPMeta;
 
 use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Traits\IsEmpty;
+use SergeLiatko\WPMeta\Traits\PostTypesSupport;
 use WP_Post;
 
 /**
@@ -14,7 +15,7 @@ use WP_Post;
  */
 class PostMetaBox implements HasId {
 
-	use IsEmpty;
+	use IsEmpty, PostTypesSupport;
 
 	/**
 	 * @var string $title
@@ -25,11 +26,6 @@ class PostMetaBox implements HasId {
 	 * @var string $id
 	 */
 	protected $id;
-
-	/**
-	 * @var string[] $types
-	 */
-	protected $types;
 
 	/**
 	 * @var string $context
@@ -129,37 +125,6 @@ class PostMetaBox implements HasId {
 	 */
 	public function setId( string $id ): PostMetaBox {
 		$this->id = sanitize_key( $id );
-
-		return $this;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getTypes(): array {
-		return $this->types;
-	}
-
-	/**
-	 * @param string[] $types
-	 *
-	 * @return PostMetaBox
-	 */
-	public function setTypes( array $types ): PostMetaBox {
-		$types = array_filter(
-			array_map(
-				'sanitize_key',
-				array_diff( $types, $this->getNotSupportedTypes() )
-			)
-		);
-		//if no types provided register the meta box for all public supported post types
-		if ( empty( $types ) ) {
-			$types = array_diff(
-				get_post_types( array( 'public' => true ) ),
-				$this->getNotSupportedTypes()
-			);
-		}
-		$this->types = $types;
 
 		return $this;
 	}
@@ -341,18 +306,6 @@ class PostMetaBox implements HasId {
 			'normal',
 			'side',
 			'advanced',
-		);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getNotSupportedTypes() {
-		return array(
-			'nav_menu_item',
-			'revision',
-			'custom_css',
-			'customize_changeset',
 		);
 	}
 
