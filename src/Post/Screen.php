@@ -100,7 +100,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 			array(
 				'types' => $this->getTypes(),
 			),
-			'\\SergeLiatko\\WPMeta\\MetaBox'
+			'\\SergeLiatko\\WPMeta\\Post\\MetaBox'
 		);
 
 		return $this;
