@@ -72,9 +72,9 @@ trait PostScriptsSupport {
 	}
 
 	/**
-	 * @return bool
+	 * @return bool|null
 	 */
-	public function isEnqueuedScripts(): bool {
+	public function isEnqueuedScripts() {
 		return $this->enqueued_scripts;
 	}
 
