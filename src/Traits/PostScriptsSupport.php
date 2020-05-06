@@ -119,42 +119,46 @@ trait PostScriptsSupport {
 	 * Enqueues scripts and styles in WordPress.
 	 */
 	protected function addScripts() {
-		foreach ( $this->getScripts() as $script ) {
-			if ( is_array( $script ) ) {
-				$handle = $script['handle'];
-				wp_enqueue_script(
-					$handle,
-					$script['src'],
-					$script['deps'],
-					$script['ver'],
-					$script['in_footer']
-				);
-				//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-				do_action( "admin_enqueued_script-{$handle}", $this );
-			} else {
-				$handle = $script;
-				wp_enqueue_script( $handle );
-				//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-				do_action( "admin_enqueued_script-{$handle}", $this );
+		if ( ! $this->isEmpty( $scripts = (array) $this->getScripts() ) ) {
+			foreach ( $scripts as $script ) {
+				if ( is_array( $script ) ) {
+					$handle = $script['handle'];
+					wp_enqueue_script(
+						$handle,
+						$script['src'],
+						$script['deps'],
+						$script['ver'],
+						$script['in_footer']
+					);
+					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
+					do_action( "admin_enqueued_script-{$handle}", $this );
+				} else {
+					$handle = $script;
+					wp_enqueue_script( $handle );
+					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
+					do_action( "admin_enqueued_script-{$handle}", $this );
+				}
 			}
 		}
-		foreach ( $this->getStyles() as $style ) {
-			if ( is_array( $style ) ) {
-				$handle = $style['handle'];
-				wp_enqueue_style(
-					$handle,
-					$style['src'],
-					$style['deps'],
-					$style['ver'],
-					$style['media']
-				);
-				//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-				do_action( "admin_enqueued_style-{$handle}", $this );
-			} else {
-				$handle = $style;
-				wp_enqueue_style( $handle );
-				//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-				do_action( "admin_enqueued_style-{$handle}", $this );
+		if ( ! $this->isEmpty( $styles = (array) $this->getStyles() ) ) {
+			foreach ( $styles as $style ) {
+				if ( is_array( $style ) ) {
+					$handle = $style['handle'];
+					wp_enqueue_style(
+						$handle,
+						$style['src'],
+						$style['deps'],
+						$style['ver'],
+						$style['media']
+					);
+					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
+					do_action( "admin_enqueued_style-{$handle}", $this );
+				} else {
+					$handle = $style;
+					wp_enqueue_style( $handle );
+					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
+					do_action( "admin_enqueued_style-{$handle}", $this );
+				}
 			}
 		}
 	}
