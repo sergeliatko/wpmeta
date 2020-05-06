@@ -3,6 +3,7 @@
 
 namespace SergeLiatko\WPMeta;
 
+use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Traits\IsEmpty;
 use WP_Post;
 
@@ -11,7 +12,7 @@ use WP_Post;
  *
  * @package SergeLiatko\WPMeta
  */
-class PostMetaBox {
+class PostMetaBox implements HasId {
 
 	use IsEmpty;
 
@@ -259,6 +260,7 @@ class PostMetaBox {
 
 	/**
 	 * @return array|array[]
+	 * @noinspection PhpUnused
 	 */
 	public function getFields() {
 		return $this->fields;
@@ -268,22 +270,17 @@ class PostMetaBox {
 	 * @param array|array[] $fields
 	 *
 	 * @return PostMetaBox
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function setFields( array $fields ) {
-		array_walk( $fields, function ( &$item, $key, array $defaults ) {
-			$item = Factory::create(
-				wp_parse_args( $item, $defaults ),
-				'\\SergeLiatko\\WPMeta\\ObjectMeta'
-			);
-		},
+		$this->fields = Factory::createMultiple(
+			$fields,
 			array(
 				'object_type'    => 'post',
 				'object_subtype' => $this->getTypes(),
 				'display_hook'   => $this->getDisplayHook(),
-			)
+			),
+			'\\SergeLiatko\\WPMeta\\ObjectMeta'
 		);
-		$this->fields = $fields;
 
 		return $this;
 	}

@@ -4,6 +4,7 @@
 namespace SergeLiatko\WPMeta;
 
 
+use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Traits\IsEmpty;
 use SergeLiatko\WPMeta\Traits\ParseArgsRecursive;
 
@@ -12,7 +13,7 @@ use SergeLiatko\WPMeta\Traits\ParseArgsRecursive;
  *
  * @package SergeLiatko\WPMeta
  */
-class ObjectMeta {
+class ObjectMeta implements HasId {
 
 	use IsEmpty, ParseArgsRecursive;
 
@@ -390,6 +391,7 @@ class ObjectMeta {
 
 	/**
 	 * @return string
+	 * @noinspection PhpUnused
 	 */
 	public function getLabel(): string {
 		return $this->label;
@@ -408,6 +410,7 @@ class ObjectMeta {
 
 	/**
 	 * @return string
+	 * @noinspection PhpUnused
 	 */
 	public function getHelp(): string {
 		return $this->help;
@@ -426,6 +429,7 @@ class ObjectMeta {
 
 	/**
 	 * @return array
+	 * @noinspection PhpUnused
 	 */
 	public function getInputAttrs(): array {
 		return $this->input_attrs;
@@ -446,6 +450,7 @@ class ObjectMeta {
 
 	/**
 	 * @return array
+	 * @noinspection PhpUnused
 	 */
 	public function getChoices(): array {
 		return $this->choices;
