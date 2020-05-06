@@ -25,9 +25,9 @@ trait PostTypesSupport {
 	/**
 	 * @param string[] $types
 	 *
-	 * @return PostTypesSupport
+	 * @return mixed
 	 */
-	public function setTypes( array $types ): PostTypesSupport {
+	public function setTypes( array $types ) {
 		$types = array_filter(
 			array_map(
 				'sanitize_key',
@@ -41,6 +41,13 @@ trait PostTypesSupport {
 		$this->types = $types;
 
 		return $this;
+	}
+
+	/**
+	 * @return array|string[]
+	 */
+	public function getSupportedPostTypes(): array {
+		return $this->getTypes();
 	}
 
 	/**

@@ -1,21 +1,23 @@
 <?php
 
 
-namespace SergeLiatko\WPMeta;
+namespace SergeLiatko\WPMeta\Post;
 
+use SergeLiatko\WPMeta\Factory;
 use SergeLiatko\WPMeta\Interfaces\HasId;
-use SergeLiatko\WPMeta\Traits\IsEmpty;
+use SergeLiatko\WPMeta\Interfaces\HasSupportedPostTypes;
+use SergeLiatko\WPMeta\Traits\PostScriptsSupport;
 use SergeLiatko\WPMeta\Traits\PostTypesSupport;
 use WP_Post;
 
 /**
- * Class PostMetaBox
+ * Class MetaBox
  *
- * @package SergeLiatko\WPMeta
+ * @package SergeLiatko\WPMeta\Post
  */
-class PostMetaBox implements HasId {
+class MetaBox implements HasId, HasSupportedPostTypes {
 
-	use IsEmpty, PostTypesSupport;
+	use PostScriptsSupport, PostTypesSupport;
 
 	/**
 	 * @var string $title
@@ -58,7 +60,7 @@ class PostMetaBox implements HasId {
 	protected $fields;
 
 	/**
-	 * PostMetaBox constructor.
+	 * MetaBox constructor.
 	 *
 	 * @param array $args
 	 */
@@ -66,13 +68,14 @@ class PostMetaBox implements HasId {
 		/**
 		 * @var string                 $title
 		 * @var string                 $id
-		 * @var string[]               $types
+		 * @var array|string[]         $types
 		 * @var string                 $context
 		 * @var string                 $priority
 		 * @var callable|\Closure|null $callback
 		 * @var array|null             $callback_args
 		 * @var string                 $description
 		 * @var array|array[]          $fields
+		 * @var array|array[]|string[] $scripts
 		 */
 		extract( wp_parse_args( $args, $this->getDefaults() ), EXTR_OVERWRITE );
 		$this->setTitle( $title );
@@ -84,6 +87,14 @@ class PostMetaBox implements HasId {
 		$this->setCallbackArgs( $callback_args );
 		$this->setDescription( $description );
 		$this->setFields( $fields );
+		//set only if not empty to skip extra work
+		if ( ! empty( $scripts ) ) {
+			$this->setScripts( $scripts );
+		}
+		//set only if not empty to skip extra work
+		if ( ! empty( $styles ) ) {
+			$this->setStyles( $styles );
+		}
 		foreach ( $this->getTypes() as $type ) {
 			add_action( "add_meta_boxes_{$type}", array( $this, 'register' ), 10, 1 );
 		}
@@ -99,9 +110,9 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param string $title
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
-	public function setTitle( string $title ): PostMetaBox {
+	public function setTitle( string $title ): MetaBox {
 		$this->title = sanitize_text_field( $title );
 
 		return $this;
@@ -121,9 +132,9 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param string $id
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
-	public function setId( string $id ): PostMetaBox {
+	public function setId( string $id ): MetaBox {
 		$this->id = sanitize_key( $id );
 
 		return $this;
@@ -139,9 +150,9 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param string $context
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
-	public function setContext( string $context ): PostMetaBox {
+	public function setContext( string $context ): MetaBox {
 		$context       = in_array( $context, $this->getAllowedContexts() ) ? $context : 'advanced';
 		$this->context = $context;
 
@@ -158,9 +169,9 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param string $priority
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
-	public function setPriority( string $priority ): PostMetaBox {
+	public function setPriority( string $priority ): MetaBox {
 		$priority       = in_array( $priority, $this->getAllowedPriorities() ) ? $priority : 'default';
 		$this->priority = $priority;
 
@@ -177,7 +188,7 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param callable|\Closure|null $callback
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
 	public function setCallback( $callback ) {
 		$this->callback = $callback;
@@ -195,9 +206,9 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param array|null $callback_args
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
-	public function setCallbackArgs( $callback_args = null ): PostMetaBox {
+	public function setCallbackArgs( $callback_args = null ): MetaBox {
 		$this->callback_args = ( is_array( $callback_args ) || is_null( $callback_args ) ) ?
 			$callback_args
 			: null;
@@ -215,9 +226,9 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param string $description
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
-	public function setDescription( string $description ): PostMetaBox {
+	public function setDescription( string $description ): MetaBox {
 		$this->description = $description;
 
 		return $this;
@@ -234,7 +245,7 @@ class PostMetaBox implements HasId {
 	/**
 	 * @param array|array[] $fields
 	 *
-	 * @return PostMetaBox
+	 * @return MetaBox
 	 */
 	public function setFields( array $fields ) {
 		$this->fields = Factory::createMultiple(
@@ -323,6 +334,8 @@ class PostMetaBox implements HasId {
 			'callback_args' => null,
 			'description'   => '',
 			'fields'        => array(),
+			'scripts'       => array(),
+			'styles'        => array(),
 		);
 	}
 

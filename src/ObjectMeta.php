@@ -5,17 +5,18 @@ namespace SergeLiatko\WPMeta;
 
 
 use SergeLiatko\WPMeta\Interfaces\HasId;
-use SergeLiatko\WPMeta\Traits\IsEmpty;
+use SergeLiatko\WPMeta\Interfaces\HasSupportedPostTypes;
 use SergeLiatko\WPMeta\Traits\ParseArgsRecursive;
+use SergeLiatko\WPMeta\Traits\PostScriptsSupport;
 
 /**
  * Class ObjectMeta
  *
  * @package SergeLiatko\WPMeta
  */
-class ObjectMeta implements HasId {
+class ObjectMeta implements HasId, HasSupportedPostTypes {
 
-	use IsEmpty, ParseArgsRecursive;
+	use ParseArgsRecursive, PostScriptsSupport;
 
 	/**
 	 * @var string $id
@@ -33,7 +34,7 @@ class ObjectMeta implements HasId {
 	protected $object_type;
 
 	/**
-	 * @var string|string[] $object_subtype
+	 * @var array|string|string[] $object_subtype
 	 */
 	protected $object_subtype;
 
@@ -104,42 +105,52 @@ class ObjectMeta implements HasId {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string          $id
-		 * @var string          $meta_key
-		 * @var string          $object_type
-		 * @var string|string[] $object_subtype
-		 * @var string          $type
-		 * @var string          $description
-		 * @var bool            $single
-		 * @var callable|null   $sanitize_callback
-		 * @var callable|null   $auth_callback
-		 * @var array|bool      $show_in_rest
-		 * @var string          $display_hook
-		 * @var callable|null   $display_callback
-		 * @var string          $label
-		 * @var string          $help
-		 * @var array           $input_attrs
-		 * @var array           $choices
+		 * @var string                 $id
+		 * @var string                 $meta_key
+		 * @var string                 $object_type
+		 * @var array|string|string[]  $object_subtype
+		 * @var string                 $type
+		 * @var string                 $description
+		 * @var bool                   $single
+		 * @var callable|null          $sanitize_callback
+		 * @var callable|null          $auth_callback
+		 * @var array|bool             $show_in_rest
+		 * @var string                 $display_hook
+		 * @var callable|null          $display_callback
+		 * @var string                 $label
+		 * @var string                 $help
+		 * @var array                  $input_attrs
+		 * @var array                  $choices
+		 * @var array|array[]|string[] $scripts
+		 * @var array|array[]|string[] $styles
 		 */
 		extract( $this->parseArgsRecursive( $args, $this->getDefaults() ), EXTR_OVERWRITE );
-		$this->setId( $id );
 		$this->setMetaKey( $meta_key );
-		$this->setObjectType( $object_type );
-		$this->setObjectSubtype( $object_subtype );
-		$this->setType( $type );
-		$this->setDescription( $description );
-		$this->setSingle( $single );
-		$this->setSanitizeCallback( $sanitize_callback );
-		$this->setAuthCallback( $auth_callback );
-		$this->setShowInRest( $show_in_rest );
-		$this->setDisplayHook( $display_hook );
-		$this->setDisplayCallback( $display_callback );
-		$this->setLabel( $label );
-		$this->setHelp( $help );
-		$this->setInputAttrs( $input_attrs );
-		$this->setChoices( $choices );
 		//proceed only if meta key is not empty
 		if ( ! $this->isEmpty( $this->getMetaKey() ) ) {
+			$this->setId( $id );
+			$this->setObjectType( $object_type );
+			$this->setObjectSubtype( $object_subtype );
+			$this->setType( $type );
+			$this->setDescription( $description );
+			$this->setSingle( $single );
+			$this->setSanitizeCallback( $sanitize_callback );
+			$this->setAuthCallback( $auth_callback );
+			$this->setShowInRest( $show_in_rest );
+			$this->setDisplayHook( $display_hook );
+			$this->setDisplayCallback( $display_callback );
+			$this->setLabel( $label );
+			$this->setHelp( $help );
+			$this->setInputAttrs( $input_attrs );
+			$this->setChoices( $choices );
+			//set only if not empty to skip extra work
+			if ( ! empty( $scripts ) ) {
+				$this->setScripts( $scripts );
+			}
+			//set only if not empty to skip extra work
+			if ( ! empty( $styles ) ) {
+				$this->setStyles( $styles );
+			}
 			//register meta data
 			add_action( 'init', array( $this, 'register' ), 10, 0 );
 			//save meta data
@@ -155,6 +166,11 @@ class ObjectMeta implements HasId {
 			}
 		}
 	}
+
+	public function getSupportedPostTypes(): array {
+		return ( 'post' === $this->getObjectType() ) ? (array) $this->getObjectSubtype() : array();
+	}
+
 
 	/**
 	 * @return string
@@ -216,19 +232,22 @@ class ObjectMeta implements HasId {
 	}
 
 	/**
-	 * @return string|string[]
+	 * @return array|string[]
 	 */
 	public function getObjectSubtype() {
 		return $this->object_subtype;
 	}
 
 	/**
-	 * @param string|string[] $object_subtype
+	 * @param array|string|string[] $object_subtype
 	 *
 	 * @return ObjectMeta
 	 */
 	public function setObjectSubtype( $object_subtype ) {
-		$this->object_subtype = $object_subtype;
+		if ( ! is_array( $object_subtype ) ) {
+			$object_subtype = array( $object_subtype );
+		}
+		$this->object_subtype = array_filter( array_map( 'sanitize_key', $object_subtype ) );
 
 		return $this;
 	}
@@ -754,7 +773,7 @@ class ObjectMeta implements HasId {
 			'id'                => '',
 			'meta_key'          => '',
 			'object_type'       => 'post',
-			'object_subtype'    => '',
+			'object_subtype'    => array(),
 			'type'              => 'string',
 			'description'       => '',
 			'single'            => false,
@@ -767,6 +786,8 @@ class ObjectMeta implements HasId {
 			'help'              => '',
 			'input_attrs'       => array(),
 			'choices'           => array(),
+			'scripts'           => array(),
+			'styles'            => array(),
 		);
 	}
 }
