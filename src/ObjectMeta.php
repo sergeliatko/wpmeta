@@ -127,7 +127,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 		extract( $this->parseArgsRecursive( $args, $this->getDefaults() ), EXTR_OVERWRITE );
 		$this->setMetaKey( $meta_key );
 		//proceed only if meta key is not empty
-		if ( ! $this->isEmpty( $this->getMetaKey() ) ) {
+		if ( !$this->isEmpty( $this->getMetaKey() ) ) {
 			$this->setId( $id );
 			$this->setObjectType( $object_type );
 			$this->setObjectSubtype( $object_subtype );
@@ -144,11 +144,11 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 			$this->setInputAttrs( $input_attrs );
 			$this->setChoices( $choices );
 			//set only if not empty to skip extra work
-			if ( ! empty( $scripts ) ) {
+			if ( !empty( $scripts ) ) {
 				$this->setScripts( $scripts );
 			}
 			//set only if not empty to skip extra work
-			if ( ! empty( $styles ) ) {
+			if ( !empty( $styles ) ) {
 				$this->setStyles( $styles );
 			}
 			//register meta data
@@ -157,8 +157,8 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 			add_action( $this->getSaveHook(), array( $this, 'maybeSave' ), 10, 1 );
 			//maybe display the field in UI
 			if (
-				! $this->isEmpty( $this->getDisplayCallback() )
-				&& ! $this->isEmpty( $hooks = $this->getDisplayHook() )
+				!$this->isEmpty( $this->getDisplayCallback() )
+				&& !$this->isEmpty( $hooks = $this->getDisplayHook() )
 			) {
 				foreach ( (array) $hooks as $hook ) {
 					add_action( $hook, array( $this, 'display' ), 10, 1 );
@@ -244,7 +244,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 * @return ObjectMeta
 	 */
 	public function setObjectSubtype( $object_subtype ) {
-		if ( ! is_array( $object_subtype ) ) {
+		if ( !is_array( $object_subtype ) ) {
 			$object_subtype = array( $object_subtype );
 		}
 		$this->object_subtype = array_filter( array_map( 'sanitize_key', $object_subtype ) );
@@ -365,7 +365,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string[]|string
 	 */
-	public function getDisplayHook(): string {
+	public function getDisplayHook() {
 		return $this->display_hook;
 	}
 
@@ -490,7 +490,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 * @param mixed $object
 	 */
 	public function display( $object ) {
-		if ( ! is_callable( $callback = $this->getDisplayCallback() ) ) {
+		if ( !is_callable( $callback = $this->getDisplayCallback() ) ) {
 			return;
 		}
 		if ( is_int( $object ) ) {
@@ -722,7 +722,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 */
 	protected function canSave( $id = 0 ) {
 		return (
-			! ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			!( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			&& (
 				isset( $_REQUEST['_wpnonce'] )
 				&& wp_verify_nonce( $_REQUEST['_wpnonce'], $this->getNonce( $id ) )
@@ -790,4 +790,5 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 			'styles'            => array(),
 		);
 	}
+
 }
