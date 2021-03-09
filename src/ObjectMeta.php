@@ -6,6 +6,7 @@ namespace SergeLiatko\WPMeta;
 
 use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Interfaces\HasSupportedPostTypes;
+use SergeLiatko\WPMeta\Traits\IsCallable;
 use SergeLiatko\WPMeta\Traits\ParseArgsRecursive;
 use SergeLiatko\WPMeta\Traits\PostScriptsSupport;
 
@@ -16,7 +17,7 @@ use SergeLiatko\WPMeta\Traits\PostScriptsSupport;
  */
 class ObjectMeta implements HasId, HasSupportedPostTypes {
 
-	use ParseArgsRecursive, PostScriptsSupport;
+	use IsCallable, ParseArgsRecursive, PostScriptsSupport;
 
 	/**
 	 * @var string $id
@@ -54,12 +55,12 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	protected $single;
 
 	/**
-	 * @var callable|null $sanitize_callback
+	 * @var \Closure|callable|string|array|null $sanitize_callback
 	 */
 	protected $sanitize_callback;
 
 	/**
-	 * @var callable|null $auth_callback
+	 * @var \Closure|callable|string|array|null $auth_callback
 	 */
 	protected $auth_callback;
 
@@ -74,7 +75,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	protected $display_hook;
 
 	/**
-	 * @var callable|null $display_callback
+	 * @var \Closure|callable|string|array|null $display_callback
 	 */
 	protected $display_callback;
 
@@ -105,24 +106,24 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string                 $id
-		 * @var string                 $meta_key
-		 * @var string                 $object_type
-		 * @var array|string|string[]  $object_subtype
-		 * @var string                 $type
-		 * @var string                 $description
-		 * @var bool                   $single
-		 * @var callable|null          $sanitize_callback
-		 * @var callable|null          $auth_callback
-		 * @var array|bool             $show_in_rest
-		 * @var string                 $display_hook
-		 * @var callable|null          $display_callback
-		 * @var string                 $label
-		 * @var string                 $help
-		 * @var array                  $input_attrs
-		 * @var array                  $choices
-		 * @var array|array[]|string[] $scripts
-		 * @var array|array[]|string[] $styles
+		 * @var string                              $id
+		 * @var string                              $meta_key
+		 * @var string                              $object_type
+		 * @var array|string|string[]               $object_subtype
+		 * @var string                              $type
+		 * @var string                              $description
+		 * @var bool                                $single
+		 * @var \Closure|callable|string|array|null $sanitize_callback
+		 * @var \Closure|callable|string|array|null $auth_callback
+		 * @var array|bool                          $show_in_rest
+		 * @var string                              $display_hook
+		 * @var \Closure|callable|string|array|null $display_callback
+		 * @var string                              $label
+		 * @var string                              $help
+		 * @var array                               $input_attrs
+		 * @var array                               $choices
+		 * @var array|array[]|string[]              $scripts
+		 * @var array|array[]|string[]              $styles
 		 */
 		extract( $this->parseArgsRecursive( $args, $this->getDefaults() ), EXTR_OVERWRITE );
 		$this->setMetaKey( $meta_key );
@@ -143,14 +144,8 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 			$this->setHelp( $help );
 			$this->setInputAttrs( $input_attrs );
 			$this->setChoices( $choices );
-			//set only if not empty to skip extra work
-			if ( !empty( $scripts ) ) {
-				$this->setScripts( $scripts );
-			}
-			//set only if not empty to skip extra work
-			if ( !empty( $styles ) ) {
-				$this->setStyles( $styles );
-			}
+			$this->setScripts( $scripts );
+			$this->setStyles( $styles );
 			//register meta data
 			add_action( 'init', array( $this, 'register' ), 10, 0 );
 			//save meta data
@@ -243,7 +238,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return ObjectMeta
 	 */
-	public function setObjectSubtype( $object_subtype ) {
+	public function setObjectSubtype( $object_subtype ): ObjectMeta {
 		if ( !is_array( $object_subtype ) ) {
 			$object_subtype = array( $object_subtype );
 		}
@@ -308,37 +303,37 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	}
 
 	/**
-	 * @return callable|null
+	 * @return \Closure|callable|string|array|null
 	 */
 	public function getSanitizeCallback() {
 		return $this->sanitize_callback;
 	}
 
 	/**
-	 * @param callable|null $sanitize_callback
+	 * @param \Closure|callable|string|array|null $sanitize_callback
 	 *
 	 * @return ObjectMeta
 	 */
 	public function setSanitizeCallback( $sanitize_callback ): ObjectMeta {
-		$this->sanitize_callback = $sanitize_callback;
+		$this->sanitize_callback = $this->is_callable( $sanitize_callback ) ? $sanitize_callback : null;
 
 		return $this;
 	}
 
 	/**
-	 * @return callable|null
+	 * @return \Closure|callable|string|array|null
 	 */
 	public function getAuthCallback() {
 		return $this->auth_callback;
 	}
 
 	/**
-	 * @param callable|null $auth_callback
+	 * @param \Closure|callable|string|array|null $auth_callback
 	 *
 	 * @return ObjectMeta
 	 */
 	public function setAuthCallback( $auth_callback ): ObjectMeta {
-		$this->auth_callback = $auth_callback;
+		$this->auth_callback = $this->is_callable( $auth_callback ) ? $auth_callback : null;
 
 		return $this;
 	}
@@ -355,7 +350,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return ObjectMeta
 	 */
-	public function setShowInRest( $show_in_rest ) {
+	public function setShowInRest( $show_in_rest ): ObjectMeta {
 		$show_in_rest       = ( is_array( $show_in_rest ) || is_bool( $show_in_rest ) ) ? $show_in_rest : false;
 		$this->show_in_rest = $show_in_rest;
 
@@ -391,19 +386,19 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	}
 
 	/**
-	 * @return callable|null
+	 * @return \Closure|callable|string|array|null
 	 */
-	public function getDisplayCallback() {
+	public function getDisplayCallback(): ?callable {
 		return $this->display_callback;
 	}
 
 	/**
-	 * @param callable|null $display_callback
+	 * @param \Closure|callable|string|array|null $display_callback
 	 *
 	 * @return ObjectMeta
 	 */
 	public function setDisplayCallback( $display_callback ): ObjectMeta {
-		$this->display_callback = $display_callback;
+		$this->display_callback = $this->is_callable( $display_callback ) ? $display_callback : null;
 
 		return $this;
 	}
@@ -490,7 +485,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 * @param mixed $object
 	 */
 	public function display( $object ) {
-		if ( !is_callable( $callback = $this->getDisplayCallback() ) ) {
+		if ( !$this->is_callable( $callback = $this->getDisplayCallback() ) ) {
 			return;
 		}
 		if ( is_int( $object ) ) {
@@ -576,7 +571,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool|false|int
 	 */
-	public function add( $id, $value ) {
+	public function add( int $id, $value ) {
 		return add_metadata(
 			$this->getObjectType(),
 			$id,
@@ -593,7 +588,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool|false|int
 	 */
-	public function update( $id, $value, $previous = '' ) {
+	public function update( int $id, $value, $previous = '' ) {
 		return update_metadata(
 			$this->getObjectType(),
 			$id,
@@ -608,7 +603,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return mixed
 	 */
-	public function get( $id ) {
+	public function get( int $id ) {
 		return get_metadata(
 			$this->getObjectType(),
 			$id,
@@ -624,7 +619,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool
 	 */
-	public function delete( $id, $value = '', $all = false ) {
+	public function delete( int $id, $value = '', $all = false ): bool {
 		return delete_metadata(
 			$this->getObjectType(),
 			$id,
@@ -639,7 +634,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool
 	 */
-	public function exists( $id ) {
+	public function exists( $id ): bool {
 		return metadata_exists(
 			$this->getObjectType(),
 			$id,
@@ -676,7 +671,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string
 	 */
-	protected function getSaveHook() {
+	protected function getSaveHook(): string {
 		$hooks = $this->getObjectTypesMap();
 
 		return $hooks[ $this->getObjectType() ];
@@ -685,7 +680,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string[]
 	 */
-	protected function getAllowedTypes() {
+	protected function getAllowedTypes(): array {
 		return array(
 			'string',
 			'boolean',
@@ -699,14 +694,14 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string[]
 	 */
-	protected function getAllowedObjectTypes() {
+	protected function getAllowedObjectTypes(): array {
 		return array_keys( $this->getObjectTypesMap() );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getObjectTypesMap() {
+	protected function getObjectTypesMap(): array {
 		return array(
 			'comment' => 'edit_comment',
 			'post'    => 'save_post',
@@ -720,7 +715,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool
 	 */
-	protected function canSave( $id = 0 ) {
+	protected function canSave( $id = 0 ): bool {
 		return (
 			!( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			&& (
@@ -735,7 +730,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return string
 	 */
-	protected function getNonce( $id = 0 ) {
+	protected function getNonce( $id = 0 ): string {
 		$nonces = $this->getNoncesMap();
 
 		return sprintf( $nonces[ $this->getObjectType() ], $id );
@@ -744,7 +739,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string[]
 	 */
-	protected function getNoncesMap() {
+	protected function getNoncesMap(): array {
 		return array(
 			'comment' => 'update-comment_%d',
 			'post'    => 'update-post_%d',
@@ -758,7 +753,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return string
 	 */
-	protected function hyphenize( $string = '' ) {
+	protected function hyphenize( $string = '' ): string {
 		return trim(
 			preg_replace( '/([^a-z0-9-]+)/', '-', strtolower( trim( $string ) ) ),
 			'-'
@@ -768,7 +763,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return array
 	 */
-	protected function getDefaults() {
+	protected function getDefaults(): array {
 		return array(
 			'id'                => '',
 			'meta_key'          => '',

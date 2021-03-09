@@ -53,7 +53,7 @@ trait PostTypesSupport {
 	/**
 	 * @return string[]
 	 */
-	protected function getDefaultSupportedTypes() {
+	protected function getDefaultSupportedTypes(): array {
 		return array_diff(
 			get_post_types( array( 'public' => true ) ),
 			$this->getNotSupportedTypes()
@@ -63,7 +63,7 @@ trait PostTypesSupport {
 	/**
 	 * @return string[]
 	 */
-	protected function getNotSupportedTypes() {
+	protected function getNotSupportedTypes(): array {
 		return array(
 			'nav_menu_item',
 			'revision',
@@ -71,4 +71,5 @@ trait PostTypesSupport {
 			'customize_changeset',
 		);
 	}
+
 }

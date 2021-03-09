@@ -3,6 +3,7 @@
 
 namespace SergeLiatko\WPMeta;
 
+use SergeLiatko\WPMeta\Traits\IsCallable;
 use SergeLiatko\WPMeta\Traits\IsEmpty;
 
 /**
@@ -14,7 +15,7 @@ use SergeLiatko\WPMeta\Traits\IsEmpty;
  */
 class CallbackField {
 
-	use IsEmpty;
+	use IsCallable, IsEmpty;
 
 	/**
 	 * @var string $display_hook
@@ -22,7 +23,7 @@ class CallbackField {
 	protected $display_hook;
 
 	/**
-	 * @var callable|null $display_callback
+	 * @var \Closure|callable|string|array|null $display_callback
 	 */
 	protected $display_callback;
 
@@ -33,8 +34,8 @@ class CallbackField {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string        $display_hook
-		 * @var callable|null $display_callback
+		 * @var string                              $display_hook
+		 * @var \Closure|callable|string|array|null $display_callback
 		 */
 		extract( wp_parse_args( $args, array(
 			'display_hook'     => '',
@@ -42,7 +43,7 @@ class CallbackField {
 		) ), EXTR_OVERWRITE );
 		$this->setDisplayHook( $display_hook );
 		$this->setDisplayCallback( $display_callback );
-		if ( ! $this->isEmpty( $hook = $this->getDisplayHook() ) && ! $this->isEmpty( $this->getDisplayCallback() ) ) {
+		if ( !$this->isEmpty( $hook = $this->getDisplayHook() ) && !$this->isEmpty( $this->getDisplayCallback() ) ) {
 			add_action( $hook, array( $this, 'display' ), 10, 1 );
 		}
 	}
@@ -66,19 +67,19 @@ class CallbackField {
 	}
 
 	/**
-	 * @return callable|null
+	 * @return \Closure|callable|string|array|null
 	 */
 	public function getDisplayCallback(): ?callable {
 		return $this->display_callback;
 	}
 
 	/**
-	 * @param callable|null $display_callback
+	 * @param \Closure|callable|string|array|null $display_callback
 	 *
 	 * @return CallbackField
 	 */
-	public function setDisplayCallback( ?callable $display_callback ): CallbackField {
-		$this->display_callback = $display_callback;
+	public function setDisplayCallback( $display_callback ): CallbackField {
+		$this->display_callback = $this->is_callable( $display_callback ) ? $display_callback : null;
 
 		return $this;
 	}
@@ -87,7 +88,7 @@ class CallbackField {
 	 * @param mixed $object
 	 */
 	public function display( $object ) {
-		if ( is_callable( $callback = $this->getDisplayCallback() ) ) {
+		if ( $this->is_callable( $callback = $this->getDisplayCallback() ) ) {
 			call_user_func( $callback, $object );
 		}
 	}

@@ -53,14 +53,8 @@ class Screen implements HasId, HasSupportedPostTypes {
 		$this->setTypes( $types );
 		$this->setBoxes( $boxes );
 		$this->setFields( $fields );
-		//set only if not empty to skip extra work
-		if ( ! empty( $scripts ) ) {
-			$this->setScripts( $scripts );
-		}
-		//set only if not empty to skip extra work
-		if ( ! empty( $styles ) ) {
-			$this->setStyles( $styles );
-		}
+		$this->setScripts( $scripts );
+		$this->setStyles( $styles );
 	}
 
 	/**
@@ -85,7 +79,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	 * @return array|array[]|\SergeLiatko\WPMeta\Post\MetaBox[]
 	 * @noinspection PhpUnused
 	 */
-	public function getBoxes() {
+	public function getBoxes(): array {
 		return $this->boxes;
 	}
 
@@ -94,7 +88,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return Screen
 	 */
-	public function setBoxes( array $boxes ) {
+	public function setBoxes( array $boxes ): Screen {
 		$this->boxes = Factory::createMultiple(
 			$boxes,
 			array(
@@ -110,7 +104,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	 * @return array|array[]|\SergeLiatko\WPMeta\ObjectMeta[]
 	 * @noinspection PhpUnused
 	 */
-	public function getFields() {
+	public function getFields(): array {
 		return $this->fields;
 	}
 
@@ -119,7 +113,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return Screen
 	 */
-	public function setFields( array $fields ) {
+	public function setFields( array $fields ): Screen {
 		$this->fields = Factory::createMultiple(
 			$fields,
 			array(
@@ -136,7 +130,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return array
 	 */
-	protected function getDefaults() {
+	protected function getDefaults(): array {
 		return array(
 			'id'      => '',
 			'types'   => array(),

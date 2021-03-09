@@ -6,6 +6,7 @@ namespace SergeLiatko\WPMeta\Post;
 use SergeLiatko\WPMeta\Factory;
 use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Interfaces\HasSupportedPostTypes;
+use SergeLiatko\WPMeta\Traits\IsCallable;
 use SergeLiatko\WPMeta\Traits\PostScriptsSupport;
 use SergeLiatko\WPMeta\Traits\PostTypesSupport;
 use WP_Post;
@@ -17,7 +18,7 @@ use WP_Post;
  */
 class MetaBox implements HasId, HasSupportedPostTypes {
 
-	use PostScriptsSupport, PostTypesSupport;
+	use IsCallable, PostScriptsSupport, PostTypesSupport;
 
 	/**
 	 * @var string $title
@@ -66,16 +67,17 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string                 $title
-		 * @var string                 $id
-		 * @var array|string[]         $types
-		 * @var string                 $context
-		 * @var string                 $priority
-		 * @var callable|\Closure|null $callback
-		 * @var array|null             $callback_args
-		 * @var string                 $description
-		 * @var array|array[]          $fields
-		 * @var array|array[]|string[] $scripts
+		 * @var string                              $title
+		 * @var string                              $id
+		 * @var array|string[]                      $types
+		 * @var string                              $context
+		 * @var string                              $priority
+		 * @var \Closure|callable|string|array|null $callback
+		 * @var array|null                          $callback_args
+		 * @var string                              $description
+		 * @var array|array[]                       $fields
+		 * @var array|array[]|string[]              $scripts
+		 * @var array|array[]|string[]              $styles
 		 */
 		extract( wp_parse_args( $args, $this->getDefaults() ), EXTR_OVERWRITE );
 		$this->setTitle( $title );
@@ -87,14 +89,8 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 		$this->setCallbackArgs( $callback_args );
 		$this->setDescription( $description );
 		$this->setFields( $fields );
-		//set only if not empty to skip extra work
-		if ( ! empty( $scripts ) ) {
-			$this->setScripts( $scripts );
-		}
-		//set only if not empty to skip extra work
-		if ( ! empty( $styles ) ) {
-			$this->setStyles( $styles );
-		}
+		$this->setScripts( $scripts );
+		$this->setStyles( $styles );
 		foreach ( $this->getTypes() as $type ) {
 			add_action( "add_meta_boxes_{$type}", array( $this, 'register' ), 10, 1 );
 		}
@@ -179,19 +175,19 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	}
 
 	/**
-	 * @return callable|\Closure|null
+	 * @return \Closure|callable|string|array|null
 	 */
 	public function getCallback() {
 		return $this->callback;
 	}
 
 	/**
-	 * @param callable|\Closure|null $callback
+	 * @param \Closure|callable|string|array|null $callback
 	 *
 	 * @return MetaBox
 	 */
-	public function setCallback( $callback ) {
-		$this->callback = $callback;
+	public function setCallback( $callback ): MetaBox {
+		$this->callback = $this->is_callable( $callback ) ? $callback : null;
 
 		return $this;
 	}
@@ -199,7 +195,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return array|null
 	 */
-	public function getCallbackArgs() {
+	public function getCallbackArgs(): ?array {
 		return $this->callback_args;
 	}
 
@@ -238,7 +234,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	 * @return array|array[]
 	 * @noinspection PhpUnused
 	 */
-	public function getFields() {
+	public function getFields(): array {
 		return $this->fields;
 	}
 
@@ -247,7 +243,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return MetaBox
 	 */
-	public function setFields( array $fields ) {
+	public function setFields( array $fields ): MetaBox {
 		$this->fields = Factory::createMultiple(
 			$fields,
 			array(
@@ -280,13 +276,13 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	 * @param \WP_Post   $post
 	 * @param array|null $args
 	 */
-	public function display( WP_Post $post, $args ) {
-		if ( ! $this->isEmpty( $description = $this->getDescription() ) ) {
+	public function display( WP_Post $post, ?array $args ) {
+		if ( !$this->isEmpty( $description = $this->getDescription() ) ) {
 			echo wpautop( $description );
 		}
 		//action hook "do_meta_box-{$meta_box_id}"
 		do_action( $this->getDisplayHook(), $post, $args );
-		if ( is_callable( $callback = $this->getCallback() ) ) {
+		if ( $this->is_callable( $callback = $this->getCallback() ) ) {
 			call_user_func_array( $callback, array( $post, $args ) );
 		}
 	}
@@ -294,14 +290,14 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string
 	 */
-	protected function getDisplayHook() {
+	protected function getDisplayHook(): string {
 		return sprintf( 'do_meta_box-%s', $this->getId() );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	protected function getAllowedPriorities() {
+	protected function getAllowedPriorities(): array {
 		return array(
 			'default',
 			'high',
@@ -312,7 +308,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return string[]
 	 */
-	protected function getAllowedContexts() {
+	protected function getAllowedContexts(): array {
 		return array(
 			'normal',
 			'side',
@@ -323,7 +319,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return array
 	 */
-	protected function getDefaults() {
+	protected function getDefaults(): array {
 		return array(
 			'title'         => '',
 			'id'            => '',

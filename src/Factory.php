@@ -23,8 +23,8 @@ class Factory {
 	/**
 	 * @return \SergeLiatko\WPMeta\Factory
 	 */
-	public static function getInstance() {
-		if ( ! self::$instance instanceof Factory ) {
+	public static function getInstance(): Factory {
+		if ( !self::$instance instanceof Factory ) {
 			self::setInstance( new self() );
 		}
 

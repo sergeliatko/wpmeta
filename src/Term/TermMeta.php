@@ -38,7 +38,7 @@ class TermMeta extends ObjectMeta {
 	 */
 	public function display( $object ) {
 		//exit if no display callback is provided
-		if ( !is_callable( $callback = $this->getDisplayCallback() ) ) {
+		if ( !$this->is_callable( $callback = $this->getDisplayCallback() ) ) {
 			return;
 		}
 		$description = $this->isEmpty( $description = $this->getHelp() ) ? ''
