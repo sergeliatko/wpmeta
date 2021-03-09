@@ -41,7 +41,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	protected $priority;
 
 	/**
-	 * @var callable|\Closure|null $callback
+	 * @var \Closure|callable|string|array|null $callback
 	 */
 	protected $callback;
 
