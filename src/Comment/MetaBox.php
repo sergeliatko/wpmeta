@@ -161,7 +161,7 @@ class MetaBox implements HasId {
 			'advanced',
 		);
 
-		$this->context = in_array( $context, $contexts ) ? $context : 'advanced';
+		$this->context = in_array( $context, $contexts ) ? $context : 'normal';
 
 		return $this;
 	}
@@ -180,8 +180,9 @@ class MetaBox implements HasId {
 	 */
 	public function setPriority( string $priority ): MetaBox {
 		$priorities = array(
-			'default',
 			'high',
+			'core',
+			'default',
 			'low',
 		);
 
@@ -277,7 +278,7 @@ class MetaBox implements HasId {
 			'id'            => '',
 			'title'         => '',
 			'description'   => '',
-			'context'       => 'advanced',
+			'context'       => 'normal',
 			'priority'      => 'default',
 			'callback_args' => null,
 			'fields'        => array(),
