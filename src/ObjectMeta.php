@@ -388,7 +388,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @return \Closure|callable|string|array|null
 	 */
-	public function getDisplayCallback(): ?callable {
+	public function getDisplayCallback() {
 		return $this->display_callback;
 	}
 

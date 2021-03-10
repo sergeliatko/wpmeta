@@ -260,7 +260,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	/**
 	 * @param \WP_Post $post
 	 */
-	public function register( WP_Post $post ) {
+	public function register( WP_Post $post ): void {
 		add_meta_box(
 			$this->getId(),
 			$this->getTitle(),
@@ -276,7 +276,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	 * @param \WP_Post   $post
 	 * @param array|null $args
 	 */
-	public function display( WP_Post $post, ?array $args ) {
+	public function display( WP_Post $post, ?array $args ): void {
 		if ( !$this->isEmpty( $description = $this->getDescription() ) ) {
 			echo wpautop( $description );
 		}

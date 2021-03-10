@@ -3,6 +3,7 @@
 
 namespace SergeLiatko\WPMeta;
 
+use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Traits\IsCallable;
 use SergeLiatko\WPMeta\Traits\IsEmpty;
 
@@ -13,9 +14,14 @@ use SergeLiatko\WPMeta\Traits\IsEmpty;
  *
  * @package SergeLiatko\WPMeta
  */
-class CallbackField {
+class CallbackField implements HasId {
 
 	use IsCallable, IsEmpty;
+
+	/**
+	 * @var string $id
+	 */
+	protected $id;
 
 	/**
 	 * @var string $display_hook
@@ -23,7 +29,7 @@ class CallbackField {
 	protected $display_hook;
 
 	/**
-	 * @var \Closure|callable|string|array|null $display_callback
+	 * @var \Closure|callable|string|array|null $display_callback Must accept not more than 2 parameters.
 	 */
 	protected $display_callback;
 
@@ -34,18 +40,39 @@ class CallbackField {
 	 */
 	public function __construct( array $args ) {
 		/**
+		 * @var string                              $id
 		 * @var string                              $display_hook
 		 * @var \Closure|callable|string|array|null $display_callback
 		 */
 		extract( wp_parse_args( $args, array(
+			'id'               => '',
 			'display_hook'     => '',
 			'display_callback' => null,
 		) ), EXTR_OVERWRITE );
+		$this->setId( $id );
 		$this->setDisplayHook( $display_hook );
 		$this->setDisplayCallback( $display_callback );
 		if ( !$this->isEmpty( $hook = $this->getDisplayHook() ) && !$this->isEmpty( $this->getDisplayCallback() ) ) {
-			add_action( $hook, array( $this, 'display' ), 10, 1 );
+			add_action( $hook, array( $this, 'display' ), 10, 2 );
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getId(): string {
+		return $this->id;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return CallbackField
+	 */
+	public function setId( string $id ): CallbackField {
+		$this->id = sanitize_key( $id );
+
+		return $this;
 	}
 
 	/**
