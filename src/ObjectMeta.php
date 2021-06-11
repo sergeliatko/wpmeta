@@ -656,7 +656,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 		} else {
 			// update multiple meta values
 			$old = (array) $old;
-			$new = (array) $new;
+			$new = array_filter( (array) $new );
 			// remove old that are not in new
 			foreach ( array_diff( $old, $new ) as $to_remove ) {
 				$this->delete( $id, $to_remove );
