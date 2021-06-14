@@ -17,7 +17,7 @@ class TermMeta extends ObjectMeta {
 	 * @return string|string[]
 	 */
 	public function getDisplayHook() {
-		if ( $this->isEmpty( $display_hook = $this->display_hook ) ) {
+		if ( $this->isEmpty( $this->display_hook ) ) {
 			if ( $this->isEmpty( $object_subtype = $this->getObjectSubtype() ) ) {
 				$object_subtype = $this->getAllTaxonomies();
 			}
@@ -33,12 +33,10 @@ class TermMeta extends ObjectMeta {
 
 	/**
 	 * @param \WP_Term $object
-	 *
-	 * @noinspection PhpMissingParamTypeInspection
 	 */
 	public function display( $object ) {
 		//exit if no display callback is provided
-		if ( !$this->is_callable( $callback = $this->getDisplayCallback() ) ) {
+		if ( !$this->is_callable( $this->getDisplayCallback() ) ) {
 			return;
 		}
 		$description = $this->isEmpty( $description = $this->getHelp() ) ? ''
@@ -49,9 +47,9 @@ class TermMeta extends ObjectMeta {
 			$this->getId(),
 			$this->getLabel()
 		);
-		call_user_func_array( $callback, array( $object->term_id, $this ) );
+		parent::display( $object );
 		printf(
-			'</td>%1$s</tr>',
+			'%1$s</td></tr>',
 			$description
 		);
 	}
