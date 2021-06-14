@@ -559,7 +559,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @param int $id
 	 */
-	public function maybeSave( $id = 0 ) {
+	public function maybeSave( int $id = 0 ) {
 		if ( $this->canSave( $id ) ) {
 			$this->save( $id );
 		}
@@ -569,7 +569,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 * @param int   $id
 	 * @param mixed $value
 	 *
-	 * @return bool|false|int
+	 * @return bool|int
 	 */
 	public function add( int $id, $value ) {
 		return add_metadata(
@@ -586,7 +586,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 * @param mixed $value
 	 * @param mixed $previous
 	 *
-	 * @return bool|false|int
+	 * @return bool|int
 	 */
 	public function update( int $id, $value, $previous = '' ) {
 		return update_metadata(
@@ -619,7 +619,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool
 	 */
-	public function delete( int $id, $value = '', $all = false ): bool {
+	public function delete( int $id, $value = '', bool $all = false ): bool {
 		return delete_metadata(
 			$this->getObjectType(),
 			$id,
@@ -645,10 +645,10 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	/**
 	 * @param int $id
 	 */
-	protected function save( $id = 0 ) {
+	protected function save( int $id = 0 ) {
 		$single = $this->isSingle();
 		$key    = $this->getMetaKey();
-		$new    = isset( $_REQUEST[ $key ] ) ? $_REQUEST[ $key ] : null;
+		$new    = $_REQUEST[ $key ] ?? null;
 		$old    = $this->get( $id );
 		// update single value
 		if ( $single ) {
@@ -715,7 +715,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return bool
 	 */
-	protected function canSave( $id = 0 ): bool {
+	protected function canSave( int $id = 0 ): bool {
 		return (
 			!( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			&& (
@@ -730,7 +730,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return string
 	 */
-	protected function getNonce( $id = 0 ): string {
+	protected function getNonce( int $id = 0 ): string {
 		$nonces = $this->getNoncesMap();
 
 		return sprintf( $nonces[ $this->getObjectType() ], $id );
@@ -753,7 +753,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return string
 	 */
-	protected function hyphenize( $string = '' ): string {
+	protected function hyphenize( string $string = '' ): string {
 		return trim(
 			preg_replace( '/([^a-z0-9-]+)/', '-', strtolower( trim( $string ) ) ),
 			'-'
