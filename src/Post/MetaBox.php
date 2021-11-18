@@ -92,7 +92,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 		$this->setScripts( $scripts );
 		$this->setStyles( $styles );
 		foreach ( $this->getTypes() as $type ) {
-			add_action( "add_meta_boxes_{$type}", array( $this, 'register' ), 10, 1 );
+			add_action( "add_meta_boxes_$type", array( $this, 'register' ), 10, 1 );
 		}
 	}
 
@@ -204,10 +204,8 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	 *
 	 * @return MetaBox
 	 */
-	public function setCallbackArgs( $callback_args = null ): MetaBox {
-		$this->callback_args = ( is_array( $callback_args ) || is_null( $callback_args ) ) ?
-			$callback_args
-			: null;
+	public function setCallbackArgs( ?array $callback_args = null ): MetaBox {
+		$this->callback_args = $callback_args;
 
 		return $this;
 	}
@@ -231,7 +229,7 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 	}
 
 	/**
-	 * @return array|array[]
+	 * @return array|array[]|\SergeLiatko\WPMeta\ObjectMeta|HasId
 	 * @noinspection PhpUnused
 	 */
 	public function getFields(): array {
@@ -255,6 +253,17 @@ class MetaBox implements HasId, HasSupportedPostTypes {
 		);
 
 		return $this;
+	}
+
+	/**
+	 * @param string $field_id
+	 *
+	 * @return array|array[]|\SergeLiatko\WPMeta\ObjectMeta|HasId|null
+	 */
+	public function getField( string $field_id ) {
+		$fields = $this->getFields();
+
+		return !empty( $fields[ $field_id ] ) ? $fields[ $field_id ] : null;
 	}
 
 	/**

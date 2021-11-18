@@ -53,7 +53,7 @@ class CallbackField implements HasId {
 		$this->setDisplayHook( $display_hook );
 		$this->setDisplayCallback( $display_callback );
 		if ( !$this->isEmpty( $hook = $this->getDisplayHook() ) && !$this->isEmpty( $this->getDisplayCallback() ) ) {
-			add_action( $hook, array( $this, 'display' ), 10, 2 );
+			add_action( $hook, array( $this, 'display' ), 10, 1 );
 		}
 	}
 
@@ -112,9 +112,9 @@ class CallbackField implements HasId {
 	}
 
 	/**
-	 * @param mixed $object
+	 * @param mixed|null $object
 	 */
-	public function display( $object ) {
+	public function display( $object = null ) {
 		if ( $this->is_callable( $callback = $this->getDisplayCallback() ) ) {
 			call_user_func( $callback, $object );
 		}
