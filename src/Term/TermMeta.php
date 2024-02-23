@@ -39,8 +39,6 @@ class TermMeta extends ObjectMeta {
 		if ( !$this->is_callable( $this->getDisplayCallback() ) ) {
 			return;
 		}
-		$description = $this->isEmpty( $description = $this->getHelp() ) ? ''
-			: sprintf( '<p class="description">%1$s</p>', $description );
 		printf(
 			'<tr class="form-field term-%1$s-wrap"><th scope="row"><label for="%2$s">%3$s</label></th><td>',
 			$this->hyphenize( $this->getId() ),
@@ -48,6 +46,8 @@ class TermMeta extends ObjectMeta {
 			$this->getLabel()
 		);
 		parent::display( $object );
+		$description = $this->isEmpty( $description = $this->getHelp() ) ? ''
+			: sprintf( '<p class="description" id="%1$s-description">%2$s</p>', esc_attr( $this->getId() ), $description );
 		printf(
 			'%1$s</td></tr>',
 			$description

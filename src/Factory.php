@@ -56,7 +56,6 @@ class Factory {
 	 * @param string $default_class
 	 *
 	 * @return array
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public static function createMultiple( array $items, array $default_args, string $default_class ): array {
 		$instance = self::getInstance();

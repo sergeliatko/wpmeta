@@ -1,5 +1,4 @@
 <?php
-/** @noinspection DuplicatedCode */
 
 
 namespace SergeLiatko\WPMeta\Traits;
