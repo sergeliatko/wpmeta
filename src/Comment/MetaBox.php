@@ -22,37 +22,37 @@ class MetaBox implements HasId {
 	/**
 	 * @var string $id
 	 */
-	protected $id;
+	protected string $id;
 
 	/**
 	 * @var string $title
 	 */
-	protected $title;
+	protected string $title;
 
 	/**
 	 * @var string $description
 	 */
-	protected $description;
+	protected string $description;
 
 	/**
 	 * @var string $context
 	 */
-	protected $context;
+	protected string $context;
 
 	/**
 	 * @var string $priority
 	 */
-	protected $priority;
+	protected string $priority;
 
 	/**
 	 * @var array|null $callback_args
 	 */
-	protected $callback_args;
+	protected ?array $callback_args;
 
 	/**
-	 * @var \SergeLiatko\WPMeta\Comment\CommentMeta[] $fields
+	 * @var CommentMeta[] $fields
 	 */
-	protected $fields;
+	protected array $fields;
 
 	/**
 	 * MetaBox constructor.
@@ -61,17 +61,17 @@ class MetaBox implements HasId {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string                                            $id
-		 * @var string                                            $title
-		 * @var string                                            $description
-		 * @var string                                            $context
-		 * @var string                                            $priority
-		 * @var array|null                                        $callback_args
-		 * @var \SergeLiatko\WPMeta\Comment\CommentMeta[]|array[] $fields
-		 * @var array|array[]|string[]                            $scripts
-		 * @var array|array[]|string[]                            $styles
+		 * @var string $id
+		 * @var string $title
+		 * @var string $description
+		 * @var string $context
+		 * @var string $priority
+		 * @var array|null $callback_args
+		 * @var CommentMeta[]|array[] $fields
+		 * @var array|array[]|string[] $scripts
+		 * @var array|array[]|string[] $styles
 		 */
-		extract( wp_parse_args( $args, $this->defaults() ), EXTR_OVERWRITE );
+		extract( wp_parse_args( $args, $this->defaults() ) );
 		$this->setId( $id );
 		$this->setTitle( $title );
 		$this->setDescription( $description );
@@ -210,14 +210,15 @@ class MetaBox implements HasId {
 	}
 
 	/**
-	 * @return \SergeLiatko\WPMeta\Comment\CommentMeta[]
+	 * @return CommentMeta[]
+	 * @noinspection PhpUnused
 	 */
 	public function getFields(): array {
 		return $this->fields;
 	}
 
 	/**
-	 * @param \SergeLiatko\WPMeta\Comment\CommentMeta[] $fields
+	 * @param CommentMeta[] $fields
 	 *
 	 * @return MetaBox
 	 */
@@ -252,11 +253,11 @@ class MetaBox implements HasId {
 	}
 
 	/**
-	 * @param \WP_Comment $comment
-	 * @param array|null  $args
+	 * @param WP_Comment $comment
+	 * @param array|null $args
 	 */
 	public function display( WP_Comment $comment, ?array $args ): void {
-		if ( !$this->isEmpty( $description = $this->getDescription() ) ) {
+		if ( ! $this->isEmpty( $description = $this->getDescription() ) ) {
 			echo wpautop( $description );
 		}
 		//action hook "do_meta_box-{$meta_box_id}"

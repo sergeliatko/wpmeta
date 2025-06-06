@@ -13,7 +13,7 @@ trait PostTypesSupport {
 	/**
 	 * @var string[] $types
 	 */
-	protected $types;
+	protected array $types;
 
 	/**
 	 * @return string[]
@@ -25,9 +25,9 @@ trait PostTypesSupport {
 	/**
 	 * @param string[] $types
 	 *
-	 * @return mixed
+	 * @return static
 	 */
-	public function setTypes( array $types ) {
+	public function setTypes( array $types ): static {
 		$types = array_filter(
 			array_map(
 				'sanitize_key',

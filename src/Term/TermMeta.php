@@ -16,7 +16,7 @@ class TermMeta extends ObjectMeta {
 	/**
 	 * @return string|string[]
 	 */
-	public function getDisplayHook() {
+	public function getDisplayHook(): array|string {
 		if ( $this->isEmpty( $this->display_hook ) ) {
 			if ( $this->isEmpty( $object_subtype = $this->getObjectSubtype() ) ) {
 				$object_subtype = $this->getAllTaxonomies();
@@ -32,9 +32,9 @@ class TermMeta extends ObjectMeta {
 	}
 
 	/**
-	 * @param \WP_Term $object
+	 * @param mixed $object
 	 */
-	public function display( $object ) {
+	public function display( mixed $object ): void {
 		//exit if no display callback is provided
 		if ( !$this->is_callable( $this->getDisplayCallback() ) ) {
 			return;

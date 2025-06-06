@@ -17,17 +17,17 @@ trait PostScriptsSupport {
 	/**
 	 * @var array|array[]|string[]
 	 */
-	protected $scripts;
+	protected array $scripts = [];
 
 	/**
 	 * @var array|array[]|string[]
 	 */
-	protected $styles;
+	protected array $styles = [];
 
 	/**
 	 * @var bool $enqueued_scripts
 	 */
-	protected $enqueued_scripts;
+	protected bool $enqueued_scripts = false;
 
 	/**
 	 * @return array|array[]|string[]
@@ -39,11 +39,11 @@ trait PostScriptsSupport {
 	/**
 	 * @param array|array[]|string[] $scripts
 	 *
-	 * @return mixed
+	 * @return static
 	 */
-	public function setScripts( array $scripts ) {
-		$this->scripts = empty( $scripts ) ? array() : $this->filterScripts( $scripts );
-		if ( !empty( $this->scripts ) ) {
+	public function setScripts( array $scripts ): static {
+		$this->scripts = $this->filterScripts( $scripts );
+		if ( ! empty( $this->scripts ) ) {
 			$this->maybeEnqueueScripts();
 		}
 
@@ -60,11 +60,11 @@ trait PostScriptsSupport {
 	/**
 	 * @param array|array[]|string[] $styles
 	 *
-	 * @return mixed
+	 * @return static
 	 */
-	public function setStyles( array $styles ) {
+	public function setStyles( array $styles ): static {
 		$this->styles = empty( $styles ) ? array() : $this->filterScripts( $styles, 'style' );
-		if ( !empty( $this->styles ) ) {
+		if ( ! empty( $this->styles ) ) {
 			$this->maybeEnqueueScripts();
 		}
 
@@ -81,9 +81,9 @@ trait PostScriptsSupport {
 	/**
 	 * @param bool $enqueued_scripts
 	 *
-	 * @return mixed
+	 * @return static
 	 */
-	public function setEnqueuedScripts( bool $enqueued_scripts ) {
+	public function setEnqueuedScripts( bool $enqueued_scripts ): static {
 		$this->enqueued_scripts = $enqueued_scripts;
 
 		return $this;
@@ -94,7 +94,7 @@ trait PostScriptsSupport {
 	 *
 	 * @noinspection PhpUnused
 	 */
-	public function enqueueScripts( string $hook ) {
+	public function enqueueScripts( string $hook ): void {
 		//proceed only on screens related to post editing
 		if ( in_array( $hook, array( 'post.php', 'post-new.php' ) ) ) {
 			//do we have specific post types to act on?
@@ -118,8 +118,8 @@ trait PostScriptsSupport {
 	/**
 	 * Enqueues scripts and styles in WordPress.
 	 */
-	protected function addScripts() {
-		if ( !$this->isEmpty( $scripts = (array) $this->getScripts() ) ) {
+	protected function addScripts(): void {
+		if ( ! $this->isEmpty( $scripts = $this->getScripts() ) ) {
 			foreach ( $scripts as $script ) {
 				if ( is_array( $script ) ) {
 					$handle = $script['handle'];
@@ -131,16 +131,15 @@ trait PostScriptsSupport {
 						$script['in_footer']
 					);
 					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-					do_action( "admin_enqueued_script-{$handle}", $this );
 				} else {
 					$handle = $script;
 					wp_enqueue_script( $handle );
 					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-					do_action( "admin_enqueued_script-{$handle}", $this );
 				}
+				do_action( "admin_enqueued_script-$handle", $this );
 			}
 		}
-		if ( !$this->isEmpty( $styles = (array) $this->getStyles() ) ) {
+		if ( ! $this->isEmpty( $styles = $this->getStyles() ) ) {
 			foreach ( $styles as $style ) {
 				if ( is_array( $style ) ) {
 					$handle = $style['handle'];
@@ -152,13 +151,12 @@ trait PostScriptsSupport {
 						$style['media']
 					);
 					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-					do_action( "admin_enqueued_style-{$handle}", $this );
 				} else {
 					$handle = $style;
 					wp_enqueue_style( $handle );
 					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
-					do_action( "admin_enqueued_style-{$handle}", $this );
 				}
+				do_action( "admin_enqueued_style-$handle", $this );
 			}
 		}
 	}
@@ -166,15 +164,15 @@ trait PostScriptsSupport {
 	/**
 	 * Checks if scripts were enqueued and enqueues them if not.
 	 */
-	protected function maybeEnqueueScripts() {
+	protected function maybeEnqueueScripts(): void {
 		if (
 			$this->isEmpty( $this->isEnqueuedScripts() )
 			&& (
-				!$this->isEmpty( $this->getScripts() )
-				|| !$this->isEmpty( $this->getStyles() )
+				! $this->isEmpty( $this->getScripts() )
+				|| ! $this->isEmpty( $this->getStyles() )
 			)
 		) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ), 10, 1 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
 			$this->setEnqueuedScripts( true );
 		}
 	}
@@ -182,15 +180,15 @@ trait PostScriptsSupport {
 	/**
 	 * @param array|array[]|string[] $scripts
 	 *
-	 * @param string                 $type
+	 * @param string $type
 	 *
 	 * @return array
 	 */
-	protected function filterScripts( array $scripts, $type = 'script' ): array {
+	protected function filterScripts( array $scripts, string $type = 'script' ): array {
 		$scripts = array_filter(
 			$scripts,
 			function ( $item ) {
-				return ( !empty( $item ) && ( is_array( $item ) || is_string( $item ) ) );
+				return ( ! empty( $item ) && ( is_array( $item ) || is_string( $item ) ) );
 			}
 		);
 		array_walk( $scripts, function ( &$item ) use ( $type ) {

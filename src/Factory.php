@@ -16,15 +16,15 @@ class Factory {
 	use ParseArgsRecursive;
 
 	/**
-	 * @var \SergeLiatko\WPMeta\Factory $instance
+	 * @var Factory|null $instance
 	 */
-	protected static $instance;
+	protected static ?Factory $instance = null;
 
 	/**
-	 * @return \SergeLiatko\WPMeta\Factory
+	 * @return Factory
 	 */
 	public static function getInstance(): Factory {
-		if ( !self::$instance instanceof Factory ) {
+		if ( ! self::$instance instanceof Factory ) {
 			self::setInstance( new self() );
 		}
 
@@ -32,27 +32,27 @@ class Factory {
 	}
 
 	/**
-	 * @param \SergeLiatko\WPMeta\Factory $instance
+	 * @param Factory $instance
 	 */
-	public static function setInstance( Factory $instance ) {
+	public static function setInstance( Factory $instance ): void {
 		self::$instance = $instance;
 	}
 
 	/**
-	 * @param array  $args
+	 * @param array $args
 	 * @param string $default_class
 	 *
 	 * @return mixed
 	 */
-	public static function create( array $args, string $default_class ) {
+	public static function create( array $args, string $default_class ): mixed {
 		$class = empty( $args['_class'] ) ? $default_class : $args['_class'];
 
 		return new $class( $args );
 	}
 
 	/**
-	 * @param array  $items
-	 * @param array  $default_args
+	 * @param array $items
+	 * @param array $default_args
 	 * @param string $default_class
 	 *
 	 * @return array

@@ -7,6 +7,7 @@ namespace SergeLiatko\WPMeta\Post;
 use SergeLiatko\WPMeta\Factory;
 use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Interfaces\HasSupportedPostTypes;
+use SergeLiatko\WPMeta\ObjectMeta;
 use SergeLiatko\WPMeta\Traits\PostScriptsSupport;
 use SergeLiatko\WPMeta\Traits\PostTypesSupport;
 
@@ -22,17 +23,17 @@ class Screen implements HasId, HasSupportedPostTypes {
 	/**
 	 * @var string $id
 	 */
-	protected $id;
+	protected string $id;
 
 	/**
-	 * @var array|array[]|\SergeLiatko\WPMeta\Post\MetaBox[]
+	 * @var array|array[]|MetaBox[]
 	 */
-	protected $boxes;
+	protected array $boxes;
 
 	/**
-	 * @var array|array[]|\SergeLiatko\WPMeta\ObjectMeta[] $fields
+	 * @var array|array[]|ObjectMeta[] $fields
 	 */
-	protected $fields;
+	protected array $fields;
 
 	/**
 	 * Screen constructor.
@@ -41,14 +42,14 @@ class Screen implements HasId, HasSupportedPostTypes {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string                 $id
-		 * @var array|string[]         $types
-		 * @var array|array[]          $boxes
-		 * @var array|array[]          $fields
+		 * @var string $id
+		 * @var array|string[] $types
+		 * @var array|array[] $boxes
+		 * @var array|array[] $fields
 		 * @var array|string[]|array[] $scripts
 		 * @var array|string[]|array[] $styles
 		 */
-		extract( wp_parse_args( $args, $this->getDefaults() ), EXTR_OVERWRITE );
+		extract( wp_parse_args( $args, $this->getDefaults() ) );
 		$this->setId( $id );
 		$this->setTypes( $types );
 		$this->setBoxes( $boxes );
@@ -76,7 +77,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	}
 
 	/**
-	 * @return array|array[]|\SergeLiatko\WPMeta\Post\MetaBox[]
+	 * @return array|array[]|MetaBox[]
 	 * @noinspection PhpUnused
 	 */
 	public function getBoxes(): array {
@@ -101,7 +102,7 @@ class Screen implements HasId, HasSupportedPostTypes {
 	}
 
 	/**
-	 * @return array|array[]|\SergeLiatko\WPMeta\ObjectMeta[]
+	 * @return array|array[]|ObjectMeta[]
 	 * @noinspection PhpUnused
 	 */
 	public function getFields(): array {

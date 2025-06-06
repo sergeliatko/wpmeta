@@ -16,7 +16,7 @@ class UserMeta extends ObjectMeta {
 	/**
 	 * @param mixed $object
 	 */
-	public function display( $object ): void {
+	public function display( mixed $object ): void {
 		//exit if no display callback is provided
 		if ( !$this->is_callable( $this->getDisplayCallback() ) ) {
 			return;

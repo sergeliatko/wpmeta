@@ -20,12 +20,12 @@ class Screen implements HasId {
 	/**
 	 * @var string $id
 	 */
-	protected $id;
+	protected string $id;
 
 	/**
-	 * @var \SergeLiatko\WPMeta\Comment\MetaBox[]
+	 * @var MetaBox[]
 	 */
-	protected $boxes;
+	protected array $boxes;
 
 	/**
 	 * Screen constructor.
@@ -34,12 +34,12 @@ class Screen implements HasId {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string                                              $id
-		 * @var \SergeLiatko\WPMeta\Comment\MetaBox[]|array[]|array $boxes
-		 * @var array|array[]|string[]                              $scripts
-		 * @var array|array[]|string[]                              $styles
+		 * @var string $id
+		 * @var MetaBox[]|array[]|array $boxes
+		 * @var array|array[]|string[] $scripts
+		 * @var array|array[]|string[] $styles
 		 */
-		extract( wp_parse_args( $args, $this->defaults() ), EXTR_OVERWRITE );
+		extract( wp_parse_args( $args, $this->defaults() ) );
 		$this->setId( $id );
 		$this->setBoxes( $boxes );
 		$this->setScripts( $scripts );
@@ -65,14 +65,15 @@ class Screen implements HasId {
 	}
 
 	/**
-	 * @return \SergeLiatko\WPMeta\Comment\MetaBox[]
+	 * @return MetaBox[]
+	 * @noinspection PhpUnused
 	 */
 	public function getBoxes(): array {
 		return $this->boxes;
 	}
 
 	/**
-	 * @param \SergeLiatko\WPMeta\Comment\MetaBox[]|array|array[] $boxes
+	 * @param MetaBox[]|array|array[] $boxes
 	 *
 	 * @return Screen
 	 */

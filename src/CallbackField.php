@@ -3,6 +3,7 @@
 
 namespace SergeLiatko\WPMeta;
 
+use Closure;
 use SergeLiatko\WPMeta\Interfaces\HasId;
 use SergeLiatko\WPMeta\Traits\IsCallable;
 use SergeLiatko\WPMeta\Traits\IsEmpty;
@@ -21,15 +22,15 @@ class CallbackField implements HasId {
 	/**
 	 * @var string $id
 	 */
-	protected $id;
+	protected string $id;
 
 	/**
 	 * @var string $display_hook
 	 */
-	protected $display_hook;
+	protected string $display_hook;
 
 	/**
-	 * @var \Closure|callable|string|array|null $display_callback Must accept not more than 2 parameters.
+	 * @var Closure|callable|string|array|null $display_callback Must accept not more than 2 parameters.
 	 */
 	protected $display_callback;
 
@@ -40,20 +41,20 @@ class CallbackField implements HasId {
 	 */
 	public function __construct( array $args ) {
 		/**
-		 * @var string                              $id
-		 * @var string                              $display_hook
-		 * @var \Closure|callable|string|array|null $display_callback
+		 * @var string $id
+		 * @var string $display_hook
+		 * @var Closure|callable|string|array|null $display_callback
 		 */
 		extract( wp_parse_args( $args, array(
 			'id'               => '',
 			'display_hook'     => '',
 			'display_callback' => null,
-		) ), EXTR_OVERWRITE );
+		) ) );
 		$this->setId( $id );
 		$this->setDisplayHook( $display_hook );
 		$this->setDisplayCallback( $display_callback );
-		if ( !$this->isEmpty( $hook = $this->getDisplayHook() ) && !$this->isEmpty( $this->getDisplayCallback() ) ) {
-			add_action( $hook, array( $this, 'display' ), 10, 1 );
+		if ( ! $this->isEmpty( $hook = $this->getDisplayHook() ) && ! $this->isEmpty( $this->getDisplayCallback() ) ) {
+			add_action( $hook, array( $this, 'display' ) );
 		}
 	}
 
@@ -94,18 +95,18 @@ class CallbackField implements HasId {
 	}
 
 	/**
-	 * @return \Closure|callable|string|array|null
+	 * @return Closure|callable|string|array|null
 	 */
-	public function getDisplayCallback(): ?callable {
+	public function getDisplayCallback(): callable|array|string|Closure|null {
 		return $this->display_callback;
 	}
 
 	/**
-	 * @param \Closure|callable|string|array|null $display_callback
+	 * @param callable|array|string|Closure|null $display_callback
 	 *
 	 * @return CallbackField
 	 */
-	public function setDisplayCallback( $display_callback ): CallbackField {
+	public function setDisplayCallback( callable|array|string|Closure|null $display_callback ): CallbackField {
 		$this->display_callback = $this->is_callable( $display_callback ) ? $display_callback : null;
 
 		return $this;
@@ -114,7 +115,7 @@ class CallbackField implements HasId {
 	/**
 	 * @param mixed|null $object
 	 */
-	public function display( $object = null ) {
+	public function display( mixed $object = null ): void {
 		if ( $this->is_callable( $callback = $this->getDisplayCallback() ) ) {
 			call_user_func( $callback, $object );
 		}
