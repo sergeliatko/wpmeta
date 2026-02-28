@@ -20,32 +20,32 @@ class ProfileSection implements HasId {
 	/**
 	 * @var string $id
 	 */
-	protected $id;
+	protected string $id;
 
 	/**
 	 * @var int $priority
 	 */
-	protected $priority;
+	protected int $priority;
 
 	/**
 	 * @var string $title
 	 */
-	protected $title;
+	protected string $title;
 
 	/**
 	 * @var string $description
 	 */
-	protected $description;
+	protected string $description;
 
 	/**
-	 * @var array|\SergeLiatko\WPMeta\User\UserMeta[]
+	 * @var array|UserMeta[]
 	 */
-	protected $fields;
+	protected array $fields;
 
 	/**
-	 * @var string $display_hook
+	 * @var string|null $display_hook
 	 */
-	protected $display_hook;
+	protected ?string $display_hook = null;
 
 	public function __construct( array $args ) {
 		/**
@@ -53,22 +53,22 @@ class ProfileSection implements HasId {
 		 * @var int                                       $priority
 		 * @var string                                    $title
 		 * @var string                                    $description
-		 * @var array|\SergeLiatko\WPMeta\User\UserMeta[] $fields
+		 * @var array|UserMeta[] $fields
 		 */
-		extract( wp_parse_args( $args, $this->defaults() ), EXTR_OVERWRITE );
+		extract( wp_parse_args( $args, $this->defaults() ) );
 		$this->setId( $id );
 		$this->setPriority( $priority );
 		$this->setTitle( $title );
 		$this->setDescription( $description );
 		$this->setFields( $fields );
 		if ( !self::isEmpty( $this->getFields() ) ) {
-			add_action( 'show_user_profile', array( $this, 'display' ), $this->getPriority(), 1 );
-			add_action( 'edit_user_profile', array( $this, 'display' ), $this->getPriority(), 1 );
+			add_action( 'show_user_profile', array( $this, 'display' ), $this->getPriority() );
+			add_action( 'edit_user_profile', array( $this, 'display' ), $this->getPriority() );
 		}
 	}
 
 	/**
-	 * @param \WP_User $user
+	 * @param WP_User $user
 	 */
 	public function display( WP_User $user ): void {
 		//get class base
@@ -170,14 +170,14 @@ class ProfileSection implements HasId {
 	}
 
 	/**
-	 * @return array|\SergeLiatko\WPMeta\User\UserMeta[]
+	 * @return array|UserMeta[]
 	 */
 	public function getFields(): array {
 		return $this->fields;
 	}
 
 	/**
-	 * @param array|\SergeLiatko\WPMeta\User\UserMeta[] $fields
+	 * @param array|UserMeta[] $fields
 	 *
 	 * @return ProfileSection
 	 */
@@ -249,7 +249,7 @@ class ProfileSection implements HasId {
 	protected function hyphenize( string $text ): string {
 		return strtolower(
 			trim(
-				preg_replace( '/^[\d]+|[^a-z0-9]+/i', '-', $text ),
+				preg_replace( '/^\d+|[^a-z0-9]+/i', '-', $text ),
 				'-'
 			)
 		);
