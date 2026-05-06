@@ -233,7 +233,7 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 		 * @var Closure|callable|string|array|null $sanitize_callback
 		 * @var Closure|callable|string|array|null $auth_callback
 		 * @var array|bool $show_in_rest
-		 * @var string $display_hook
+		 * @var string|string[]|array $display_hook
 		 * @var Closure|callable|string|array|null $display_callback
 		 * @var string $label
 		 * @var string $help
@@ -743,9 +743,8 @@ class ObjectMeta implements HasId, HasSupportedPostTypes {
 		} elseif ( is_object( $object ) ) {
 			$id = match ( get_class( $object ) ) {
 				'WP_Comment' => $object->comment_ID,
-				'WP_Post' => $object->ID,
+				'WP_Post', 'WP_User' => $object->ID,
 				'WP_Term' => $object->term_id,
-				'WP_User' => $object->ID,
 				default => 0,
 			};
 		} else {
