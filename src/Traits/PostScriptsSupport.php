@@ -128,7 +128,7 @@ trait PostScriptsSupport {
 						$script['src'],
 						$script['deps'],
 						$script['ver'],
-						$script['in_footer']
+						$this->getScriptArgs( $script )
 					);
 					//@developers: hook your wp_localize_script() functions here to localize the enqueued script
 				} else {
@@ -201,6 +201,7 @@ trait PostScriptsSupport {
 							'deps'      => array(),
 							'ver'       => false,
 							'in_footer' => false,
+							'strategy'  => '',
 						) );
 						break;
 					case 'style':
@@ -218,6 +219,24 @@ trait PostScriptsSupport {
 		} );
 
 		return array_filter( $scripts );
+	}
+
+	/**
+	 * Returns WordPress script args for an admin script definition.
+	 *
+	 * @param array $script Script definition.
+	 *
+	 * @return array Script args.
+	 */
+	protected function getScriptArgs( array $script ): array {
+		$args = array(
+			'in_footer' => ! empty( $script['in_footer'] ),
+		);
+		if ( ! empty( $script['strategy'] ) ) {
+			$args['strategy'] = strval( $script['strategy'] );
+		}
+
+		return $args;
 	}
 
 	/**
